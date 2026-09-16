@@ -1,0 +1,60 @@
+name: Build EXE (Windows) & DMG (macOS)
+
+# Cách dùng: đẩy (push) toàn bộ thư mục BaiTapLon này lên một repo GitHub,
+# vào tab "Actions" của repo -> chọn workflow "Build EXE (Windows) & DMG (macOS)"
+# -> Run workflow. Sau khi chạy xong, tải file .exe / .dmg ở mục "Artifacts".
+# KHÔNG cần có sẵn máy Windows hay macOS - GitHub cung cấp máy ảo miễn phí.
+
+on:
+  workflow_dispatch:      # cho phép bấm nút "Run workflow" thủ công
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        app: [CauA_GaussSeidel, CauB_MonteCarlo]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Build EXE with PyInstaller
+        run: |
+          cd ${{ matrix.app }}
+          pyinstaller --noconfirm --onefile --windowed --name "${{ matrix.app }}" main.py
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-windows-exe
+          path: ${{ matrix.app }}/dist/*.exe
+
+  build-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        app: [CauA_GaussSeidel, CauB_MonteCarlo]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Build .app with PyInstaller
+        run: |
+          cd ${{ matrix.app }}
+          pyinstaller --noconfirm --windowed --name "${{ matrix.app }}" main.py
+      - name: Package as .dmg
+        run: |
+          cd ${{ matrix.app }}/dist
+          hdiutil create -volname "${{ matrix.app }}" -srcfolder "${{ matrix.app }}.app" -ov -format UDZO "${{ matrix.app }}.dmg"
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-macos-dmg
+          path: ${{ matrix.app }}/dist/*.dmg

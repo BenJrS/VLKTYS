@@ -1,0 +1,10 @@
+{
+  "mode": "standard",
+  "N0_mean": 1000,
+  "N0_std": 20,
+  "N_mean": 250,
+  "N_std": 10,
+  "Th_mean": 5730,
+  "Th_std": 40,
+  "n_trials": 100000
+}
