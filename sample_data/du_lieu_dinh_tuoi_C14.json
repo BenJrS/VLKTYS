@@ -1,10 +1,19 @@
 {
-  "mode": "standard",
-  "N0_mean": 1000,
-  "N0_std": 20,
-  "N_mean": 250,
-  "N_std": 10,
-  "Th_mean": 5730,
-  "Th_std": 40,
-  "n_trials": 100000
+  "mode": "decay",
+  "isotope": "C-14",
+  "description": "Số đếm của một mẫu chuẩn C-14 ghi lại theo thời gian (dữ liệu dùng cho bài tập) và kết quả đo mẫu vật cần định tuổi.",
+  "time_unit": "năm",
+  "decay_data": {
+    "t": [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000],
+    "N": [20153, 17801, 15753, 14008, 12318, 11001, 9720, 8549, 7526, 6724, 5977, 5322, 4604, 4077]
+  },
+  "sample": {
+    "N0": 1000,
+    "N0_sigma": 20,
+    "N": 250,
+    "N_sigma": 10
+  },
+  "n_trials": 100000,
+  "seed": 2026,
+  "ci": 95
 }
