@@ -1,4 +1,4 @@
-# Bài tập lớn – Phương pháp số
+
 
 Gồm 2 ứng dụng GUI độc lập, viết bằng **Python + PySide6 (Qt)**, đồ thị bằng **matplotlib**.
 
