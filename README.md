@@ -1,85 +1,76 @@
+# Bài tập lớn: Câu 10A (Gauss–Seidel) và Câu 6B (Monte-Carlo)
 
-
-Gồm 2 ứng dụng GUI độc lập, viết bằng **Python + PySide6 (Qt)**, đồ thị bằng **matplotlib**.
+Hai ứng dụng desktop viết bằng **Python**: NumPy, SymPy, Matplotlib cho phần tính toán và vẽ đồ thị, **PySide6 (Qt)** cho giao diện.
 
 ```
-BaiTapLon/
-├── CauA_GaussSeidel/main.py     ← Câu 10A: giải mạch điện bằng Gauss–Seidel
-├── CauB_MonteCarlo/main.py      ← Câu 6B: định tuổi phóng xạ bằng Monte-Carlo
-├── sample_data/                 ← File dữ liệu mẫu để test nút Import/Đọc dữ liệu
-├── requirements.txt
-├── build_windows.bat            ← chạy trên Windows để tạo .exe
-├── build_macos.sh               ← chạy trên macOS để tạo .dmg
-└── .github/workflows/build.yml  ← tự build cả .exe lẫn .dmg trên GitHub (khuyên dùng)
+CauA_GaussSeidel/main.py   Câu 10A: giải hệ phương trình nút mạch điện bằng Gauss–Seidel
+CauB_MonteCarlo/main.py    Câu 6B: định tuổi phóng xạ bằng mô phỏng Monte-Carlo
+shared/theme.py            giao diện dùng chung (màu, font, kiểu đồ thị)
+shared/fonts/              font IBM Plex (giấy phép SIL OFL), đóng gói kèm ứng dụng
+shared/icons/              biểu tượng ứng dụng và script tạo ra chúng
+sample_data/               file mẫu để thử chức năng mở file
+*.spec                     cấu hình đóng gói PyInstaller
 ```
 
-## 1. Chạy thử ngay (không cần đóng gói)
+## Chạy từ mã nguồn
 
 ```bash
 python -m venv venv
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
-
+source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
 python CauA_GaussSeidel/main.py
 python CauB_MonteCarlo/main.py
 ```
 
-## 2. Nội dung từng ứng dụng
+## Câu 10A: Gauss–Seidel
 
-### Câu 10A — Gauss–Seidel (mạch điện nhiều nút)
-- Nhập ma trận hệ số A và vector b bằng bảng, hoặc bấm **"Ví dụ mẫu (3 nút)"**.
-- Bấm **"Import ma trận từ file…"** và chọn `sample_data/mach_dien_4nut.csv` để thử chức năng nhập từ file ngoài (định dạng: mỗi hàng là 1 phương trình, n hệ số + 1 giá trị b, phân tách bằng dấu phẩy).
-- Bấm **"GIẢI HỆ"**: chương trình lặp Gauss–Seidel, vẽ đồ thị hội tụ sai số theo số vòng lặp (trục log), in nghiệm + số vòng lặp cần thiết, đồng thời so sánh với nghiệm giải trực tiếp (`numpy.linalg.solve`).
-- Lưu kết quả (`.txt`) và đồ thị (`.png`) bằng 2 nút phía dưới bảng nhập liệu.
+Mô hình phân tích điện áp nút **G·V = I**: G là ma trận điện dẫn, V là điện áp các nút cần tìm, I là dòng nguồn bơm vào từng nút.
 
-### Câu 6B — Monte-Carlo (định tuổi phóng xạ)
-Có 2 tab:
-- **"Mô phỏng chuẩn"**: nhập N₀ (số hạt nhân ban đầu), N (đo hiện tại), T₁/₂ (chu kỳ bán rã) cùng sai số đo của từng đại lượng → chương trình chạy Monte-Carlo (mặc định 100.000 lần thử) và tính đồng thời **tuổi mẫu vật t**, **hằng số phân rã λ**, **chu kỳ bán rã T₁/₂** kèm khoảng tin cậy 95%. Bấm **"Ví dụ mẫu (C-14)"** hoặc **"Đọc dữ liệu đã lưu…"** rồi chọn `sample_data/du_lieu_dinh_tuoi_C14.json`.
-- **"Phương trình tùy ý"**: gõ bất kỳ công thức nào (vd `ln(N0/N)/lam`), khai báo các biến với giá trị trung bình/độ lệch chuẩn/phân bố → chương trình tự parse (sympy) và chạy Monte-Carlo, cho ra kết quả + khoảng tin cậy 95%. Có thể nạp sẵn `sample_data/phuong_trinh_mau.json`.
-- Nút **"Lưu hình ảnh đồ thị"** và **"Lưu kết quả tính toán"** ở cuối cửa sổ áp dụng cho tab đang mở.
-
-## 3. Đóng gói thành ứng dụng độc lập (.exe / .dmg) — để lấy điểm khuyến khích
-
-Mã nguồn đã được kiểm thử với PyInstaller (build thành công, không thiếu module). Có 3 cách:
-
-### Cách A — Tự động, KHÔNG cần máy Windows/Mac (khuyên dùng)
-1. Tạo 1 repo GitHub mới, đẩy (push) toàn bộ thư mục `BaiTapLon` này lên.
-2. Vào tab **Actions** của repo → chọn workflow **"Build EXE (Windows) & DMG (macOS)"** → bấm **Run workflow**.
-3. Đợi ~5 phút, vào mục **Artifacts** của lần chạy để tải về:
-   - `CauA_GaussSeidel-windows-exe.zip`, `CauB_MonteCarlo-windows-exe.zip`
-   - `CauA_GaussSeidel-macos-dmg.zip`, `CauB_MonteCarlo-macos-dmg.zip`
-
-GitHub cấp máy ảo Windows và macOS miễn phí để build, bạn không cần sở hữu máy Mac.
-
-### Cách B — Build thủ công trên máy Windows
-```
-build_windows.bat
-```
-→ ra `CauA_GaussSeidel\dist\CauA_GaussSeidel.exe` và `CauB_MonteCarlo\dist\CauB_MonteCarlo.exe`
-
-### Cách C — Build thủ công trên máy macOS
-```bash
-chmod +x build_macos.sh
-./build_macos.sh
-```
-→ ra `CauA_GaussSeidel/dist/CauA_GaussSeidel.dmg` và `CauB_MonteCarlo/dist/CauB_MonteCarlo.dmg`
-
-## 4. Bảng đối chiếu với yêu cầu đề bài
-
-| Yêu cầu đề bài | Nơi đáp ứng |
+| Yêu cầu đề bài | Cách thực hiện trong chương trình |
 |---|---|
-| **10A** – nhập ma trận/vector, giải Gauss–Seidel (4đ) | Bảng nhập liệu + nút "GIẢI HỆ" |
-| **10A** – đồ thị hội tụ sai số, in nghiệm + số vòng lặp (4đ) | Đồ thị bên phải + ô kết quả |
-| **10A** – import file, so sánh trực tiếp, lưu kết quả (2đ) | Nút Import, so sánh tự động, nút Lưu |
-| **6B** – đọc dữ liệu đã lưu, đồ thị, tính t/λ/T₁/₂ bằng MC (4đ) | Tab "Mô phỏng chuẩn" |
-| **6B** – nhập phương trình bất kỳ (3đ) + CI (khuyến khích) | Tab "Phương trình tùy ý" (đều có CI 95%) |
-| **6B** – lưu hình ảnh + kết quả (3đ) + đóng gói app (khuyến khích) | 2 nút Lưu + hướng dẫn build .exe/.dmg ở trên |
+| Nhập ma trận hệ số và vector vế phải, giải bằng Gauss–Seidel (4đ) | Bảng ma trận mở rộng [A \| b] có thể sửa trực tiếp; chọn số nút, sai số dừng `tol`, số vòng lặp tối đa; nút **Giải hệ** |
+| Đồ thị hội tụ của sai số theo số vòng lặp, ghi chú nghiệm và số vòng lặp (4đ) | Đồ thị ‖x(k) − x(k−1)‖∞ (trục log) có đường `tol`. Khung chú thích **nằm ngay trong hình** ghi số vòng lặp và toàn bộ nghiệm V1…Vn, nên ảnh lưu ra vẫn đủ thông tin |
+| Import ma trận từ file, so sánh với nghịch đảo ma trận, lưu kết quả (2đ) | **Mở ma trận từ file…** (.csv/.txt, phân tách bằng phẩy, chấm phẩy hoặc khoảng trắng). Nghiệm được so sánh với **x = A⁻¹·b** (`numpy.linalg.inv`) theo từng ẩn. **Lưu kết quả…** ra .txt (báo cáo đầy đủ kèm lịch sử sai số) hoặc .csv; **Lưu đồ thị…** ra PNG/SVG/PDF |
 
-## 5. Gợi ý khi báo cáo/thuyết trình
-- Giải thích ngắn gọn nguyên lý Monte-Carlo: lan truyền sai số đo bằng cách lấy mẫu ngẫu nhiên nhiều lần theo phân bố của biến đầu vào, từ đó suy ra phân bố (và độ bất định) của đại lượng cần tìm.
-- Với Gauss–Seidel: nhắc điều kiện hội tụ (ma trận chéo trội hàng là điều kiện đủ) — chương trình có tự kiểm tra và cảnh báo.
-- Nên chụp màn hình đồ thị + kết quả từ chính chương trình để chèn vào báo cáo (dùng luôn nút "Lưu hình ảnh").
+Chương trình kiểm tra trước khi giải:
+- **Chéo trội hàng**: ô đường chéo hiện màu xanh nếu hàng đó chéo trội chặt, màu đỏ nếu không.
+- **Bán kính phổ** ρ(T) của ma trận lặp T = −(D+L)⁻¹U. Gauss–Seidel hội tụ với mọi điểm xuất phát khi và chỉ khi ρ(T) < 1. Điều kiện này chặt hơn chéo trội, vốn chỉ là điều kiện đủ.
+- Phát hiện trường hợp phân kỳ (sai số tăng dần) và báo rõ.
+
+File mẫu: `sample_data/mach_dien_4nut.csv` (4 nút, hội tụ sau 24 vòng với tol = 1e-10).
+
+## Câu 6B: Monte-Carlo định tuổi phóng xạ
+
+Mô hình phân rã bậc nhất: N(t) = N₀·e^(−λt), T½ = ln2/λ, tuổi mẫu t = ln(N₀/N)/λ.
+
+**Tab "Dữ liệu đo"**. Chương trình đọc file chứa số đếm phân rã N(tᵢ) của một mẫu chuẩn cùng kết quả đo mẫu vật (N₀ ± σ, N ± σ). Mỗi lần thử Monte-Carlo gồm 3 bước:
+1. Sinh số đếm giả lập Nᵢ* ~ Poisson(Nᵢ), vì số đếm phóng xạ tuân theo phân bố Poisson.
+2. Khớp ln Nᵢ* theo tᵢ bằng bình phương tối thiểu có trọng số, suy ra **λ\*** và **T½\* = ln2/λ\***.
+3. Lấy mẫu N₀*, N* theo sai số đo, suy ra **tuổi t\* = ln(N₀\*/N\*)/λ\***.
+
+Sau 100.000 lần thử, chương trình báo trung bình, độ lệch chuẩn và **khoảng tin cậy** (90/95/99%) cho λ, T½ và tuổi. Đồ thị gồm đường phân rã kèm dải tin cậy và 3 histogram, vùng nằm trong khoảng tin cậy được tô đậm.
+
+Như vậy λ và T½ đều được **ước lượng từ dữ liệu**. Ở phiên bản trước, T½ là đầu vào rồi lại được in ra như kết quả.
+
+**Tab "Phương trình tự nhập"**. Người dùng gõ bất kỳ phương trình nào và khai báo các biến đo được (giá trị, σ, phân bố chuẩn hoặc đều):
+- dạng tường minh: `t = ln(N0/N)/lam`
+- dạng phương trình ẩn: `N = N0*exp(-ln(2)*t/T)`. Ký hiệu duy nhất chưa có trong bảng biến là ẩn cần tính, và chương trình tự giải theo ẩn đó bằng SymPy.
+
+Ngay khi gõ, chương trình hiện "Sẽ tính: t = …", hoặc báo lỗi cụ thể nếu thiếu biến hay sai cú pháp. Có sẵn 4 phương trình mẫu. Kết quả có khoảng tin cậy.
+
+| Yêu cầu đề bài | Cách thực hiện |
+|---|---|
+| Đọc dữ liệu/phương trình đã lưu, đồ thị trên GUI, tính tuổi, λ, T½ bằng Monte-Carlo (4đ) | **Mở dữ liệu…** (.json, hoặc .csv hai cột t, N); tab "Dữ liệu đo" |
+| Nhập phương trình bất kỳ (3đ) + khoảng tin cậy (khuyến khích) | Tab "Phương trình tự nhập", có CI ở cả hai tab |
+| Lưu hình ảnh và kết quả (3đ) + đóng gói chạy độc lập (khuyến khích) | **Lưu đồ thị…** (PNG/SVG/PDF), **Lưu kết quả…** (.txt/.csv), **Lưu dữ liệu…** (.json); bản .exe/.app đã build |
+
+Mỗi lần chạy dùng một **seed** cố định (mặc định 2026), nên chạy lại cho đúng cùng kết quả và người chấm kiểm tra lại được.
+
+File mẫu: `sample_data/du_lieu_dinh_tuoi_C14.json`, `sample_data/phuong_trinh_mau.json`.
+
+## Đóng gói ứng dụng chạy độc lập
+
+- **Windows (.exe)**: push repo lên GitHub, workflow `.github/workflows/build.yml` tự build. Tải file ở mục *Artifacts* của lần chạy. Nếu có máy Windows thì chạy `build_windows.bat`.
+- **macOS (.app/.dmg)**: `./build_macos.sh`.
+
+Font IBM Plex và icon được đóng gói kèm, nên giao diện hiển thị giống nhau trên mọi máy.

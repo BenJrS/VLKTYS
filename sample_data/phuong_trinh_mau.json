@@ -1,10 +1,13 @@
 {
   "mode": "custom",
-  "formula": "ln(N0/N)/lam",
+  "description": "Định luật phân rã viết dưới dạng phương trình ẩn; chương trình tự giải theo t (đại lượng duy nhất chưa có giá trị).",
+  "formula": "N = N0*exp(-ln(2)*t/T)",
   "variables": {
     "N0": [1000, 20, "normal"],
     "N": [250, 10, "normal"],
-    "lam": [0.0001209, 0.000008, "normal"]
+    "T": [5730, 40, "normal"]
   },
-  "n_trials": 100000
+  "n_trials": 100000,
+  "seed": 2026,
+  "ci": 95
 }

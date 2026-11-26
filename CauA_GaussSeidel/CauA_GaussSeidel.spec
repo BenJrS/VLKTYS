@@ -1,50 +1,36 @@
 # -*- mode: python ; coding: utf-8 -*-
+# Build: chạy "pyinstaller --noconfirm CauA_GaussSeidel.spec" trong thư mục này.
+# macOS -> dist/CauA_GaussSeidel.app (thư mục)  |  Windows -> dist/CauA_GaussSeidel.exe (một file duy nhất)
+import sys
+from pathlib import Path
 
+NAME = "CauA_GaussSeidel"
+ICON = "circuit"
+SHARED = Path(SPECPATH).parent / "shared"
+
+# Các phần của Qt / thư viện không dùng tới -> bỏ để giảm dung lượng bản đóng gói
+DROP = ("QtQuick", "QtQml", "QtVirtualKeyboard", "qtvirtualkeyboard", "QtPdf", "qpdf", "QtNetwork",
+        "QtWebEngine", "Qt3D", "QtMultimedia", "QtCharts", "QtDataVisualization", "QtSql", "QtTest")
 
 a = Analysis(
-    ['main.py'],
-    pathex=[],
-    binaries=[],
-    datas=[],
-    hiddenimports=[],
-    hookspath=[],
-    hooksconfig={},
-    runtime_hooks=[],
-    excludes=[],
+    ["main.py"],
+    pathex=[str(SHARED)],
+    datas=[(str(SHARED / "fonts"), "fonts"), (str(SHARED / "icons" / f"{ICON}.png"), "icons")],
+    hiddenimports=["theme"],
+    excludes=["tkinter", "IPython", "pytest", "scipy", "pandas", "PyQt5", "PyQt6", "PySide2"],
     noarchive=False,
-    optimize=0,
 )
+a.binaries = [b for b in a.binaries if not any(k in b[0] for k in DROP)]
+a.datas = [d for d in a.datas if not any(k in d[0] for k in DROP)]
 pyz = PYZ(a.pure)
 
-exe = EXE(
-    pyz,
-    a.scripts,
-    [],
-    exclude_binaries=True,
-    name='CauA_GaussSeidel',
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    console=False,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-)
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='CauA_GaussSeidel',
-)
-app = BUNDLE(
-    coll,
-    name='CauA_GaussSeidel.app',
-    icon=None,
-    bundle_identifier=None,
-)
+if sys.platform == "darwin":
+    exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name=NAME, console=False,
+              icon=str(SHARED / "icons" / f"{ICON}.icns"))
+    coll = COLLECT(exe, a.binaries, a.datas, name=NAME)
+    app = BUNDLE(coll, name=f"{NAME}.app", icon=str(SHARED / "icons" / f"{ICON}.icns"),
+                 bundle_identifier=f"vn.baitaplon.{NAME.lower()}",
+                 info_plist={"NSHighResolutionCapable": True, "CFBundleShortVersionString": "2.0"})
+else:
+    exe = EXE(pyz, a.scripts, a.binaries, a.datas, [], name=NAME, console=False, upx=False,
+              icon=str(SHARED / "icons" / f"{ICON}.ico"))
